@@ -1,8 +1,18 @@
 const socket = io();
-socket.on('countUpdated', (counter) => {
-  console.log('Counter updated : ', counter);
+
+socket.on('message', (message) => {
+  console.log(message);
 });
 
-document.querySelector('#increment').addEventListener('click', () => {
-  socket.emit('increment');
+document.querySelector('#chat').addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  const input = e.target.elements.message.value;
+
+  if (input.trim() === '') {
+    alert('Please enter something!');
+    return;
+  }
+
+  socket.emit('newMessage', input);
 });
