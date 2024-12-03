@@ -15,13 +15,16 @@ const locationTemplate$ =
 socket.on('message', (message) => {
   const messageHtml = Mustache.render(messageTemplate$, {
     message: message.text,
-    createdAt: moment(message.createdAt).format('hh:mm:ss A'),
+    createdAt: moment(message.createdAt).format('h:mm:ss A'),
   });
   messages$.insertAdjacentHTML('beforeend', messageHtml);
 });
 
-socket.on('locationMessage', (url) => {
-  const locationHtml = Mustache.render(locationTemplate$, { url });
+socket.on('locationMessage', (message) => {
+  const locationHtml = Mustache.render(locationTemplate$, {
+    url: message.url,
+    createdAt: moment(message.createdAt).format('h:mm:ss A'),
+  });
   messages$.insertAdjacentHTML('beforeend', locationHtml);
 });
 
@@ -34,6 +37,7 @@ form$.addEventListener('submit', function (e) {
 
   if (input.trim() === '') {
     alert('Please enter something!');
+    formSendButton$.removeAttribute('disabled');
     return;
   }
 
