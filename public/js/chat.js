@@ -1,11 +1,19 @@
 const socket = io();
 
+// Elements
+const form$ = document.querySelector('#chat');
+const formInput$ = document.querySelector('#text-input');
+const formSendButton$ = document.querySelector('#send-btn');
+const sendLocationButton$ = document.querySelector('#location-btn');
+
 socket.on('message', (message) => {
   console.log(message);
 });
 
-document.querySelector('#chat').addEventListener('submit', function (e) {
+form$.addEventListener('submit', function (e) {
   e.preventDefault();
+
+  formSendButton$.setAttribute('disabled', 'disabled');
 
   const input = e.target.elements.message.value;
 
@@ -14,18 +22,33 @@ document.querySelector('#chat').addEventListener('submit', function (e) {
     return;
   }
 
-  socket.emit('newMessage', input);
+  socket.emit('newMessage', input, () => {
+    formSendButton$.removeAttribute('disabled');
+    formInput$.value = '';
+    formInput$.focus();
+
+    console.log('Message delivered!');
+  });
 });
 
-document.querySelector('#send-location').addEventListener('click', function () {
+sendLocationButton$.addEventListener('click', function () {
   if (!navigator.geolocation) {
     return alert('Geolocation is not supported by your browser!');
   }
 
+  sendLocationButton$.setAttribute('disabled', 'disabled');
+
   navigator.geolocation.getCurrentPosition((position) => {
-    socket.emit('sendLocation', {
-      latitude: position.coords.latitude,
-      longitude: position.coords.longitude,
-    });
+    socket.emit(
+      'sendLocation',
+      {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+      },
+      () => {
+        sendLocationButton$.removeAttribute('disabled');
+        console.log('Location shared!');
+      }
+    );
   });
 });
