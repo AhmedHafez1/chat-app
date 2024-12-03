@@ -2,6 +2,7 @@ const http = require('http');
 const express = require('express');
 const path = require('path');
 const socketio = require('socket.io');
+const { getMessage } = require('./utils/messages');
 
 const app = express();
 const server = http.createServer(app);
@@ -16,11 +17,11 @@ app.use(express.static(publicDirectoryPath));
 io.on('connection', (socket) => {
   console.log('New Web Socket Connection!');
 
-  socket.emit('message', 'Welcome!');
-  socket.broadcast.emit('message', 'A new user has joined!');
+  socket.emit('message', getMessage('Welcome!'));
+  socket.broadcast.emit('message', getMessage('A new user has joined!'));
 
   socket.on('newMessage', (message, callback) => {
-    io.emit('message', message);
+    io.emit('message', getMessage(message));
     callback();
   });
 
@@ -33,7 +34,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    io.emit('message', 'A user has left!');
+    io.emit('message', getMessage('A user has left!'));
   });
 });
 
