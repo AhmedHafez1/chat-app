@@ -5,9 +5,21 @@ const form$ = document.querySelector('#chat');
 const formInput$ = document.querySelector('#text-input');
 const formSendButton$ = document.querySelector('#send-btn');
 const sendLocationButton$ = document.querySelector('#location-btn');
+const messages$ = document.querySelector('#messages');
+
+// Templates
+const messageTemplate$ = document.querySelector('#message-template').innerHTML;
+const locationTemplate$ =
+  document.querySelector('#location-template').innerHTML;
 
 socket.on('message', (message) => {
-  console.log(message);
+  const messageHtml = Mustache.render(messageTemplate$, { message });
+  messages$.insertAdjacentHTML('beforeend', messageHtml);
+});
+
+socket.on('locationMessage', (url) => {
+  const locationHtml = Mustache.render(locationTemplate$, { url });
+  messages$.insertAdjacentHTML('beforeend', locationHtml);
 });
 
 form$.addEventListener('submit', function (e) {
