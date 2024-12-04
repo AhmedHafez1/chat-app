@@ -17,8 +17,14 @@ app.use(express.static(publicDirectoryPath));
 io.on('connection', (socket) => {
   console.log('New Web Socket Connection!');
 
-  socket.emit('message', getMessage('Welcome!'));
-  socket.broadcast.emit('message', getMessage('A new user has joined!'));
+  socket.on('join', ({ username, room }) => {
+    socket.join(room);
+
+    socket.emit('message', getMessage('Welcome!'));
+    socket.broadcast
+      .to(room)
+      .emit('message', getMessage('A new user has joined!'));
+  });
 
   socket.on('newMessage', (message, callback) => {
     io.emit('message', getMessage(message));
