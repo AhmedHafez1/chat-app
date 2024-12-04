@@ -3,7 +3,7 @@ const express = require('express');
 const path = require('path');
 const socketio = require('socket.io');
 const { getMessage, getLocationMessage } = require('./utils/messages');
-const { addUser, removeUser } = require('./utils/users');
+const { addUser, removeUser, getUser } = require('./utils/users');
 
 const app = express();
 const server = http.createServer(app);
@@ -27,21 +27,26 @@ io.on('connection', (socket) => {
 
     socket.join(user.room);
 
-    socket.emit('message', getMessage('Welcome!'));
+    socket.emit('message', getMessage('Admin', 'Welcome!'));
     socket.broadcast
       .to(user.room)
-      .emit('message', getMessage(user.username + ' has joined!'));
+      .emit('message', getMessage('Admin', user.username + ' has joined!'));
 
     callback();
   });
 
   socket.on('newMessage', (message, callback) => {
-    io.emit('message', getMessage(message));
+    const user = getUser(socket.id);
+    io.to(user.room).emit('message', getMessage(user.username, message));
     callback();
   });
 
   socket.on('sendLocation', ({ latitude, longitude }, callback) => {
-    io.emit('locationMessage', getLocationMessage(latitude, longitude));
+    const user = getUser(socket.id);
+    io.to(user.room).emit(
+      'locationMessage',
+      getLocationMessage(user.username, latitude, longitude)
+    );
     callback();
   });
 
@@ -50,7 +55,7 @@ io.on('connection', (socket) => {
     if (user) {
       io.to(user.room).emit(
         'message',
-        getMessage(user.username + ' has left!')
+        getMessage('Admin', user.username + ' has left!')
       );
     }
   });
