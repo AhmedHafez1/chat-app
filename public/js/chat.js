@@ -41,15 +41,9 @@ form$.addEventListener('submit', function (e) {
 
   formSendButton$.setAttribute('disabled', 'disabled');
 
-  const input = e.target.elements.message.value;
+  const message = e.target.elements.message.value;
 
-  if (input.trim() === '') {
-    alert('Please enter something!');
-    formSendButton$.removeAttribute('disabled');
-    return;
-  }
-
-  socket.emit('newMessage', input, () => {
+  socket.emit('newMessage', message, () => {
     formSendButton$.removeAttribute('disabled');
     formInput$.value = '';
     formInput$.focus();
