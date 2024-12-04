@@ -1,4 +1,4 @@
-const users = new Map();
+const users = [];
 
 const addUser = ({ id, username, room }) => {
   // Clean data
@@ -13,8 +13,10 @@ const addUser = ({ id, username, room }) => {
   }
 
   // Validate existing user
-  const key = `${username}_${room}`;
-  if (users.has(key)) {
+  const existingUser = users.find(
+    (user) => user.username === username && user.room === room
+  );
+  if (existingUser) {
     return {
       error: 'There is already a user with the same name in the room!',
     };
@@ -22,10 +24,31 @@ const addUser = ({ id, username, room }) => {
 
   // Store user
   const user = { id, username, room };
-  users.set(key, user);
+  users.push(user);
+
   return { user };
 };
 
-const removeUser = ({ username, room }) => {
-  users.delete(`${username}_${room}`);
+const removeUser = (id) => {
+  const index = users.findIndex((user) => user.id === id);
+
+  if (index !== -1) {
+    return users.splice(index, 1);
+  }
+};
+
+const getUser = (id) => {
+  return users.find((user) => user.id === id);
+};
+
+const getRoomUsers = (room) => {
+  room = room.trim().toLowerCase();
+  return users.filter((user) => user.room === room);
+};
+
+module.exports = {
+  addUser,
+  removeUser,
+  getUser,
+  getRoomUsers,
 };
