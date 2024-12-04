@@ -3,7 +3,7 @@ const express = require('express');
 const path = require('path');
 const socketio = require('socket.io');
 const { getMessage, getLocationMessage } = require('./utils/messages');
-const { addUser, removeUser, getUser } = require('./utils/users');
+const { addUser, removeUser, getUser, getRoomUsers } = require('./utils/users');
 
 const app = express();
 const server = http.createServer(app);
@@ -26,6 +26,11 @@ io.on('connection', (socket) => {
     }
 
     socket.join(user.room);
+
+    io.to(user.room).emit('roomData', {
+      room: user.room,
+      users: getRoomUsers(user.room),
+    });
 
     socket.emit('message', getMessage('Admin', 'Welcome!'));
     socket.broadcast
@@ -57,6 +62,11 @@ io.on('connection', (socket) => {
         'message',
         getMessage('Admin', user.username + ' has left!')
       );
+
+      io.to(user.room).emit('roomData', {
+        room: user.room,
+        users: getRoomUsers(user.room),
+      });
     }
   });
 });
